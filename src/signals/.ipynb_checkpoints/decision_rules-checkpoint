@@ -1,0 +1,53 @@
+module DecisionRules
+
+export FuzzySignal, evaluate_rules
+
+"""
+The FuzzySignal would contain the lower price, mid price, and upper price
+
+"""
+struct FuzzySignal
+    lower::Float64
+    mid::Float64
+    upper::Float64
+end
+
+
+
+#------------------ Membership functions ---------------------#
+
+# Price undervalued → Strong Buy / Buy
+membership_undervalued(fs::FuzzySignal) = max(0, (fs.mid - fs.lower) / fs.mid)
+
+# Price overvalued → Strong Sell / Sell
+membership_overvalued(fs::FuzzySignal) = max(0, (fs.upper - fs.mid) / fs.mid)
+
+# Neutral → Hold
+membership_neutral(fs::FuzzySignal) =
+    1 - membership_undervalued(fs) - membership_overvalued(fs)
+
+
+#-------------------------- Rule Base --------------------#
+
+"""
+This would evaluate the fuzzy rules and return a dictionary:
+Currently we are defining the dictorary as
+:StrongBuy, :Buy, :Hold, :Sell, :StrongSell
+And of course these are mapped to fuzzy activation strengths.
+"""
+function evaluate_rules(fs::FuzzySignal)
+
+    u = membership_undervalued(fs)
+    o = membership_overvalued(fs)
+    n = membership_neutral(fs)
+
+    return Dict(
+        :StrongBuy  => clamp(u^2, 0, 1),
+        :Buy        => clamp(u, 0, 1),
+        :Hold       => clamp(n, 0, 1),
+        :Sell       => clamp(o, 0, 1),
+        :StrongSell => clamp(o^2, 0, 1)
+    )
+end
+
+end # module
