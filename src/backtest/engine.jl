@@ -115,7 +115,7 @@ backtest_strategy(market_df, signals_df; kwargs...)
 
 Parameters:
 - initial_capital: starting cash
-- position_size: allocation per trade in $ (not number of contracts)
+- position_size: allocation per trade in  (not number of contracts)
 - transaction_cost: cost per contract (dollars)
 - max_positions: maximum concurrently open positions
 - close_on_expiry: if true, force close at expiry

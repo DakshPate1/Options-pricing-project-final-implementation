@@ -28,11 +28,11 @@ using Plots
 
 
 # %%
-@load "spy_clean_valid_iv.jld2" 
+@load "../data/spy_ready_for_bs.jld2"
 
 # %%
-first(df_clean, 5)
-describe(df_clean)
+first(df, 5)
+describe(df)
 
 
 # %%
@@ -51,14 +51,14 @@ end
 
 # %%
 # Volatility calibration
-σ_mid = mean(df_clean.C_IV)
-σ_spread = std(df_clean.C_IV)
+σ_mid = mean(df.C_IV)
+σ_spread = std(df.C_IV)
 σ_fuzzy = TriangularFuzzy(σ_mid - σ_spread,
                           σ_mid,
                           σ_mid + σ_spread)
 
 # Rate calibration
-r_mid = mean(df_clean.r)
+r_mid = mean(df.r)
 r_fuzzy = TriangularFuzzy(r_mid - 0.005,
                           r_mid,
                           r_mid + 0.005)
@@ -91,8 +91,8 @@ display(fuzzy_table("q", q_fuzzy))
 
 
 # %%
-include("src/black_scholes/pricing.jl")
-include("src/black_scholes/greeks.jl")
+include("../src/black_scholes/pricing.jl")
+include("../src/black_scholes/greeks.jl")
 
 
 # %%
@@ -120,7 +120,7 @@ end
 
 
 # %%
-sample = df_clean[1000, :]
+sample = df[1000, :]
 fp = propagate_fuzzy_bs(sample.UNDERLYING_LAST,
                         sample.STRIKE,
                         sample.DTE,
@@ -152,7 +152,7 @@ function fuzzy_row(row)
     return (fuzzy_low=low, fuzzy_high=high, fuzzy_mid=mid)
 end
 
-subset = df_clean[1:300, :]  # faster development
+subset = df[1:300, :]  # faster development
 fuzzy_results = DataFrame(fuzzy_row.(eachrow(subset)))
 
 first(fuzzy_results, 5)
